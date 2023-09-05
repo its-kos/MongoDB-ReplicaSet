@@ -17,6 +17,10 @@ func metrics(w http.ResponseWriter, r *http.Request) {
 }
 
 func main() {
+	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
+		fmt.Printf("got root request\n")
+		w.WriteHeader(http.StatusOK)
+	})
 	http.HandleFunc("/health", health)
 	http.HandleFunc("/metrics", metrics)
 
