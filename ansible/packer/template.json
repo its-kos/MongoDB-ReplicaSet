@@ -1,0 +1,46 @@
+{
+    "variables": {
+        "aws_region": "eu-central-1a",
+        "instance_type": "t2.micro",
+        "base_ami": "ami-04e601abe3e1a910f",
+        "provision_script": "provision.sh",
+        "playbook": "ansible/{{env `MACHINE_TYPE`}}.yml",
+        "machine_type": "{{env `MACHINE_TYPE`}}",
+        "mongo_version": "7.0"
+    },
+    "builders": [{
+        "ami_name": "Ubuntu-22.04_mongodb-{{user `mongo_version`}}_{{user `version`}}",
+        "instance_type": "{{user `instance_type`}}",
+        "region": "{{user `aws_region`}}",
+        "source_ami": "{{user `base_ami`}}",
+        "ssh_username": "ubuntu",
+        "tags": {
+            "OS_Version": "Ubuntu"
+        },
+        "type": "amazon-ebs"
+      }],
+    "provisioners": [
+        {
+            "type": "file",
+            "source": "ansible",
+            "destination": "/var/tmp/"
+        }, 
+        {
+            "type": "file",
+            "source": "roles",
+            "destination": "/var/tmp/ansible/roles"
+        }, 
+        {
+            "type": "file",
+            "source": "provision.sh",
+            "destination": "/tmp/{{user `provision_script`}}"
+        }, 
+        {
+            "type": "shell",
+            "inline": [
+                "chmod u+x /tmp/{{user `provision_script`}}",
+                "/tmp/{{user `provision_script`}} {{user `playbook`}}"
+            ]
+        }
+    ]
+}

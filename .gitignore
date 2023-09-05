@@ -1,4 +1,4 @@
-// This is where the Terraform binary is
+# This is where the Terraform binary is
 tools/*
 
 # Created by https://www.toptal.com/developers/gitignore/api/terraform,go

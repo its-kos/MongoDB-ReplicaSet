@@ -1,10 +1,10 @@
 terraform {
-  required_providers {
-    aws = {
-      source  = "hashicorp/aws"
-      version = "~> 5.0" // latest at time of writing
+    required_providers {
+        aws = {
+        source  = "hashicorp/aws"
+        version = "~> 5.0" // latest at time of writing
+        }
     }
-  }
 }
 
 # Configure the AWS Provider

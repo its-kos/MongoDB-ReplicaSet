@@ -38,3 +38,6 @@ Misc information {
     - Kubernetes Operator doesn’t support arbiter nodes.
     - We could skip the arbiter and have just 2 secondaries (??)
 }
+
+Mongo db: 
+- made an org and a pair of API keys
