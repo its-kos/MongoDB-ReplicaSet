@@ -1,12 +1,13 @@
+---
 - name: Configure MongoDB Replica Set
-  hosts: mongodb
-  become: yes
+  hosts: mongodb                        # Targets the [mongodb] hosts in the inventory.ini
+  become: yes                           # Elevated privileges
   tasks:
     - name: Install MongoDB
       apt:
         name: mongodb
         state: present
-      when: ansible_os_family == 'Debian'
+      #when: ansible_os_family == 'Amazon'
 
     - name: Start MongoDB service
       service:
@@ -18,9 +19,9 @@
         mongo --eval "rs.initiate({
           _id: 'aws_replicaset',
           members: [
-            { _id: 0, host: 'mongodb-0.<public-ip>:27017' },
-            { _id: 1, host: 'mongodb-1.<public-ip>:27017' },
-            { _id: 2, host: 'mongodb-2.<public-ip>:27017' }
+            {% for host in groups['mongodb'] %}
+            { _id: {{ loop.index0 }}, host: '{{ hostvars[host].ansible_ssh_host }}:27017' }{% if not loop.last %},{% endif %}
+            {% endfor %}
           ]
         })"
       ignore_errors: yes
