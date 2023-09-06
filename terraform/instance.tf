@@ -15,7 +15,7 @@ resource "aws_instance" "mongo_instance" {
     }
 }
 
-resource "aws_instance" "app-instance" {
+resource "aws_instance" "app_instance" {
     ami           = "ami-0766f68f0b06ab145" # Replace with your desired AMI
     instance_type = "t2.micro"
     key_name      = "your-key-pair-name"
