@@ -1,53 +1,44 @@
 resource "aws_instance" "mongo_instance" {
-    ami               = "ami-04e601abe3e1a910f" # Ubuntu 22.04
+    ami               = "ami-0766f68f0b06ab145" # Amazon Linux 2023
     # availability_zone = "eu-central-1a"
     instance_type     = "t2.micro"
     count             = "3"
-    subnet_id         = aws_subnet.private_subnets.id
+    subnet_id         = aws_subnet.public_subnet.id
     vpc_security_group_ids = ["${aws_security_group.mongo_sg.id}"]
-    # associate_public_ip_address = true
-    # user_data         = "${file("script.sh")}"
-}
-
-resource "aws_instance" "bastion-instance" {
-    ami                         = "${data.aws_ami.amazon_linux_ami.id}"
-    instance_type               = "t2.micro"
-    # key_name                    = "${var.key_name}"
-    subnet_id                   = aws_subnet.public_subnet.id
-    associate_public_ip_address = true
-    # user_data                   = "${data.template_file.userdata.rendered}"
-    vpc_security_group_ids      = ["${aws_security_group.jumpbox_sg.id}"]
-    root_block_device {
-        volume_type = "standard"
+    tags = {
+        Name = "mongodb-${count.index}"
     }
 
-    provisioner "file" {
-        source      = "~/.ssh/id_rsa"
-        destination = "/home/ec2-user/id_rsa"
-
-        connection {
-            type         = "ssh"
-            user         = "ec2-user"
-            host         = "${self.public_ip}"
-            agent        = false
-            private_key  = "${file("~/.ssh/id_rsa")}"
-        }
+    provisioner "local-exec" {
+        working_dir = "${path.module}/../ansible/"
+        command = "ansible-playbook -i '${join(",", aws_instance.mongodb[*].public_ip)}' mongodb.yml"
     }
-}
-
-data "template_file" "ec2ud" {
-    template = file("user-data.sh")
 }
 
 resource "aws_instance" "app-instance" {
-    ami                         = "ami-04e601abe3e1a910f"
-    instance_type               = "t2.micro"
-    #key_name                    = "${var.key_name}"
-    subnet_id                   = aws_subnet.public_subnet.id
-    associate_public_ip_address = true
-    # user_data                   = "${data.template_file.userdata.rendered}"
-    vpc_security_group_ids      = ["${aws_security_group.app_sg.id}"]
-    user_data = data.template_file.ec2ud
+    ami           = "ami-0766f68f0b06ab145" # Replace with your desired AMI
+    instance_type = "t2.micro"
+    key_name      = "your-key-pair-name"
+    subnet_id     = aws_subnet.public_subnet.id
+
+    user_data = <<-EOF
+                #!/bin/bash
+                # Install Go
+                sudo apt update -y
+                sudo apt install -y golang-go
+
+                git clone https://github.com/yourusername/your-repo.git /opt/your-app
+
+                cd /opt/your-app
+                go build
+                ./your-app &
+
+                # Enable the Go app to start on boot
+                sudo systemctl enable your-app
+                EOF
+    tags = {
+    Name = "app-instance"
+    }
 }
 
 resource "aws_security_group" "mongo_sg" {
@@ -72,24 +63,6 @@ resource "aws_security_group" "mongo_sg" {
         to_port     = -1
         protocol = "icmp"
         cidr_blocks        = ["${var.vpc_cidr_block}"]
-    }
-
-    egress {
-        from_port   = 0
-        to_port     = 0
-        protocol    = "-1"
-        cidr_blocks = ["0.0.0.0/0"]
-    }
-}
-
-resource "aws_security_group" "jumpbox_sg" {
-    vpc_id = aws_vpc.main_vpc.id
-
-    ingress {
-        from_port   = 22
-        to_port     = 22
-        protocol    = "tcp"
-        cidr_blocks = ["0.0.0.0/0"]
     }
 
     egress {
@@ -125,58 +98,113 @@ resource "aws_security_group" "app_sg" {
     }
 }
 
-data "aws_iam_policy_document" "instance-assume-role-policy" {
-    statement {
-        actions = ["sts:AssumeRole"]
+# resource "aws_instance" "bastion-instance" {
+#     ami                         = "ami-0766f68f0b06ab145"
+#     instance_type               = "t2.micro"
+#     key_name                    = "${var.key_name}"
+#     subnet_id                   = aws_subnet.public_subnet.id
+#     associate_public_ip_address = true
+#     user_data                   = "${data.template_file.userdata.rendered}"
+#     vpc_security_group_ids      = [aws_security_group.jumpbox_sg.id]
 
-        principals {
-            type        = "Service"
-            identifiers = ["ec2.amazonaws.com"]
-        }
-    }
-}
+#     tags = {
+#         Name = "bastion-host"
+#     }
 
-resource "aws_iam_role" "mongo-role" {
-    name               = "mongo_role"
-    path               = "/system/"
-    assume_role_policy = "${data.aws_iam_policy_document.instance-assume-role-policy.json}"
-}
+#     root_block_device {
+#         volume_type = "standard"
+#     }
 
-resource "aws_iam_instance_profile" "mongo-instance-profile" {
-    name = "mongo-instance-profile"
-    role = "${aws_iam_role.mongo-role.name}"
-}
+#     provisioner "file" {
+#         source      = "~/.ssh/id_rsa"
+#         destination = "/home/ec2-user/id_rsa"
 
-resource "aws_iam_role_policy" "ec2-describe-instance-policy" {
-    name = "ec2-describe-instance-policy"
-    role = "${aws_iam_role.mongo-role.id}"
+#         connection {
+#             type         = "ssh"
+#             user         = "ec2-user"
+#             host         = "${self.public_ip}"
+#             agent        = false
+#             private_key  = "${file("~/.ssh/id_rsa")}"
+#         }
+#     }
+# }
 
-    policy = <<EOF
-    {
-        "Version": "2012-10-17",
-        "Statement": [
-            {
-                "Effect": "Allow",
-                "Action": [
-                    "ec2:DescribeInstances",
-                    "ec2:DescribeTags"
-                ],
-                "Resource": "*"
-            }
-        ]
-    }
-    EOF
-}
+# data "template_file" "ec2ud" {
+#     template = file("user-data.sh")
+# }
 
-// Keys to use with Ansible
-resource "tls_private_key" "key" {
-    algorithm = "RSA"
-}
 
-resource "aws_key_pair" "aws_key" {
-    key_name = "ansible-ssh-key"
-    public_key = tls_private_key.key.public_key_openssh
-}
+# resource "aws_security_group" "jumpbox_sg" {
+#     vpc_id = aws_vpc.main_vpc.id
+
+#     ingress {
+#         from_port   = 22
+#         to_port     = 22
+#         protocol    = "tcp"
+#         cidr_blocks = ["0.0.0.0/0"]
+#     }
+
+#     egress {
+#         from_port   = 0
+#         to_port     = 0
+#         protocol    = "-1"
+#         cidr_blocks = ["0.0.0.0/0"]
+#     }
+# }
+
+
+# data "aws_iam_policy_document" "instance-assume-role-policy" {
+#     statement {
+#         actions = ["sts:AssumeRole"]
+
+#         principals {
+#             type        = "Service"
+#             identifiers = ["ec2.amazonaws.com"]
+#         }
+#     }
+# }
+
+# resource "aws_iam_role" "mongo-role" {
+#     name               = "mongo_role"
+#     path               = "/system/"
+#     assume_role_policy = "${data.aws_iam_policy_document.instance-assume-role-policy.json}"
+# }
+
+# resource "aws_iam_instance_profile" "mongo-instance-profile" {
+#     name = "mongo-instance-profile"
+#     role = "${aws_iam_role.mongo-role.name}"
+# }
+
+# resource "aws_iam_role_policy" "ec2-describe-instance-policy" {
+#     name = "ec2-describe-instance-policy"
+#     role = "${aws_iam_role.mongo-role.id}"
+
+#     policy = <<EOF
+#     {
+#         "Version": "2012-10-17",
+#         "Statement": [
+#             {
+#                 "Effect": "Allow",
+#                 "Action": [
+#                     "ec2:DescribeInstances",
+#                     "ec2:DescribeTags"
+#                 ],
+#                 "Resource": "*"
+#             }
+#         ]
+#     }
+#     EOF
+# }
+
+# // Keys to use with Ansible
+# resource "tls_private_key" "key" {
+#     algorithm = "RSA"
+# }
+
+# resource "aws_key_pair" "aws_key" {
+#     key_name = "ansible-ssh-key"
+#     public_key = tls_private_key.key.public_key_openssh
+# }
 
 # resource "aws_instance" "app-instance" {
 #     ami               = "ami-04e601abe3e1a910f"

@@ -1,0 +1,31 @@
+- name: Configure MongoDB Replica Set
+  hosts: mongodb
+  become: yes
+  tasks:
+    - name: Install MongoDB
+      apt:
+        name: mongodb
+        state: present
+      when: ansible_os_family == 'Debian'
+
+    - name: Start MongoDB service
+      service:
+        name: mongod
+        state: started
+
+    - name: Configure MongoDB replica set
+      command: |
+        mongo --eval "rs.initiate({
+          _id: 'aws_replicaset',
+          members: [
+            { _id: 0, host: 'mongodb-0.<public-ip>:27017' },
+            { _id: 1, host: 'mongodb-1.<public-ip>:27017' },
+            { _id: 2, host: 'mongodb-2.<public-ip>:27017' }
+          ]
+        })"
+      ignore_errors: yes
+
+    - name: Create admin user (customize this for your security needs)
+      command: |
+        mongo admin --eval "db.createUser({user: 'admin', pwd: 'admin', roles: ['root']})"
+      ignore_errors: yes
