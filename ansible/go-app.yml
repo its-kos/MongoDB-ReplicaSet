@@ -1,0 +1,30 @@
+---
+- name: Deploy Go Web App
+  hosts: goweb              # Targets the [goweb] hosts in the inventory.ini
+  become: yes               # Elevated privileges
+
+  tasks:
+    - name: Install Go
+      shell: curl -O https://dl.google.com/go/go1.21.1.linux-amd64.tar.gz && tar -C /usr/local -xzf go1.21.1.linux-amd64.tar.gz
+      args:
+        executable: /bin/bash
+
+    - name: Copy Go App
+      copy:
+        src: ../app
+        dest: /opt/go-web
+
+    - name: Set Go Environment Variables
+      lineinfile:
+        path: /home/ec2-user/.bashrc
+        line: "export GOPATH=/opt/go-web"
+
+    - name: Install Dependencies and Build App
+      shell: go get -u && go build
+      args:
+        chdir: /opt/go-web
+
+    - name: Start Go Web App
+      shell: ./go-web
+      args:
+        chdir: /opt/go-web

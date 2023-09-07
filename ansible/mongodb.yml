@@ -7,7 +7,6 @@
       apt:
         name: mongodb
         state: present
-      #when: ansible_os_family == 'Amazon'
 
     - name: Start MongoDB service
       service:

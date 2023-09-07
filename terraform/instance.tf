@@ -9,35 +9,18 @@ resource "aws_instance" "mongo_instance" {
         Name = "mongodb-${count.index}"
     }
 
-    provisioner "local-exec" {
-        working_dir = "${path.module}/../ansible/"
-        command = "ansible-playbook -i '${join(",", aws_instance.mongodb[*].public_ip)}' mongodb.yml"
-    }
+    # provisioner "local-exec" {
+    #     working_dir = "${path.module}/../ansible/"
+    #     command = "ansible-playbook -i '${join(",", aws_instance.mongodb[*].public_ip)}' mongodb.yml"
+    # }
 }
 
 resource "aws_instance" "app_instance" {
     ami           = "ami-0766f68f0b06ab145" # Replace with your desired AMI
     instance_type = "t2.micro"
-    key_name      = "your-key-pair-name"
     subnet_id     = aws_subnet.public_subnet.id
-
-    user_data = <<-EOF
-                #!/bin/bash
-                # Install Go
-                sudo apt update -y
-                sudo apt install -y golang-go
-
-                git clone https://github.com/yourusername/your-repo.git /opt/your-app
-
-                cd /opt/your-app
-                go build
-                ./your-app &
-
-                # Enable the Go app to start on boot
-                sudo systemctl enable your-app
-                EOF
     tags = {
-    Name = "app-instance"
+        Name = "app-instance"
     }
 }
 
@@ -48,21 +31,21 @@ resource "aws_security_group" "mongo_sg" {
         from_port   = 22
         to_port     = 22
         protocol    = "tcp"
-        cidr_blocks = ["${var.vpc_cidr_block}"]
+        cidr_blocks = [aws_vpc.main_vpc.cidr_blocks]
     }
 
     ingress {
         from_port   = 27017
         to_port     = 27017
         protocol    = "tcp"
-        cidr_blocks = ["${var.vpc_cidr_block}"]
+        cidr_blocks = [aws_vpc.main_vpc.cidr_blocks]
     }
 
     ingress {
         from_port   = -1
         to_port     = -1
-        protocol = "icmp"
-        cidr_blocks        = ["${var.vpc_cidr_block}"]
+        protocol    = "icmp"
+        cidr_blocks = [aws_vpc.main_vpc.cidr_blocks]
     }
 
     egress {
