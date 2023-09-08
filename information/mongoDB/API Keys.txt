@@ -1,5 +1,0 @@
-MongoDB:
-// Public Key = ebikkhlk
-// Private Key = 16aa5095-7329-4682-9c8f-4adc2d947563
-Public Key = xalfcycu
-Private Key = 785891aa-3313-49c5-b0c8-22d28fd9d840

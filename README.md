@@ -1,43 +1,58 @@
-# sre-movierama
+# Movierama Assignment
 
-- using gitignore.io to generate the .gitignore (terraform and go template)
-- setting up web app and postgres db in docker containers
-- terraform -> kubernetes cluster pattern (??)
 
-Current plan:
-Using Terraform and EC2 Instances:
-   - Provision EC2 instances using Terraform to create a cluster of virtual machines on AWS.
-   - Install and configure MongoDB directly on these EC2 instances.
-   - Establish replication and sharding within the MongoDB cluster.
 
-AWS: {
-    - IAM user with permissions {
-        * AdministratorAccess
-        * AmazonEC2FullAccess
-        * IAMFullAccess
-    }
-    - Using the AWS cli
-    - configs {
-        * default region: eu-central-1
-        * output format: json
-    }
-    - instance info {
-        Canonical, Ubuntu, 22.04 LTS, amd64 jammy image build on 2023-05-16
-        type: t2.micro
-    }
-}
+## Table of Contents
 
-Terraform: {
-    1: terraform init -> initialize backend
-    2: terraform plan -> show what currently exists vs what we have setup
-    3: terraform apply -> "commit" to the plan
-    4: terraform destroy -> "destroy" instance so we dont waste resources
-}
+- [Project Title](#project-title)
+  - [Table of Contents](#table-of-contents)
+  - [Overview](#overview)
+  - [Getting Started](#getting-started)
+    - [Prerequisites](#prerequisites)
+    - [Installation](#installation)
+  - [Usage](#usage)
+  - [Configuration](#configuration)
+  - [Deployment](#deployment)
+  - [Monitoring](#monitoring)
+  - [Contributing](#contributing)
+  - [License](#license)
 
-Misc information {
-    - Kubernetes Operator doesn’t support arbiter nodes.
-    - We could skip the arbiter and have just 2 secondaries (??)
-}
+## Overview
 
-Mongo db: 
-- made an org and a pair of API keys
+Provide an introduction to your project. Explain what it does, why it exists, and any problems it aims to solve. You can also include a high-level architecture diagram here if applicable.
+
+## Getting Started
+
+Explain how to get your project up and running. Include step-by-step instructions to help users and contributors set up a development environment.
+
+### Prerequisites
+
+List any software, tools, or dependencies that users need to have installed before they can use your project. Include version numbers when necessary.
+
+### Installation
+
+Detail the installation process. Include any necessary commands, configuration files, or environment variables that need to be set. If possible, provide both manual and automated installation methods.
+
+## Usage
+
+Explain how to use your project. Provide examples and usage scenarios. Include any important commands, API endpoints, or interfaces that users should be aware of.
+
+## Configuration
+
+Explain the configuration options available for your project. Provide guidance on how to customize and configure your DevOps setup for different use cases.
+
+## Deployment
+
+Describe the deployment process. Include deployment scripts, tools, or platforms that can be used. If applicable, provide guidance on scaling and managing deployments.
+
+## Monitoring
+
+Explain how to monitor the health and performance of your DevOps setup. Mention any monitoring tools, metrics, or dashboards that users can use to keep an eye on their deployments.
+
+## Contributing
+
+Encourage others to contribute to your project. Include guidelines for contributing, information on how to report issues, and any coding standards or conventions to follow.
+
+## License
+
+Specify the project's license to clarify how others can use and distribute your code. You can use the [MIT License](https://opensource.org/licenses/MIT) as an example.
