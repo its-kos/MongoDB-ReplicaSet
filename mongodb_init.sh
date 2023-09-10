@@ -10,8 +10,8 @@ terraform apply -auto-approve
 
 # Extract the public IP addresses of MongoDB and the web app instances
 # And create an Ansible inventory file
-mongodb_ips=$(terraform output -json | jq -r '.mongo_public_ips.value[]')
-go_web_ip=$(terraform output -json | jq -r '.app_public_ip.value[]')
+mongodb_ips=$(terraform output -json | jq -r '.mongo_public_ips.[]')
+go_web_ip=$(terraform output -json | jq -r '.app_public_ip.value')
 
 echo "[mongodb]" > ../ansible/inventory.ini
 for ip in $mongodb_ips; do

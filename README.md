@@ -29,9 +29,23 @@ A more secure architecture like the one shown below was not chosen due to it bei
 
 ### Prerequisites
 
-For now, this project works best in a Linux/macOS environment as it requires bash to run the startup script and Ansible is not officially supporte on Windows. If you are on Windows, [install WSL](https://learn.microsoft.com/en-us/windows/wsl/install) and follow the same steps. 
+For now, this project works best in a Linux/macOS environment as it requires bash to run the startup script and Ansible is not officially supported on Windows. If you are on Windows, [install WSL](https://learn.microsoft.com/en-us/windows/wsl/install) and follow the same steps. 
 
 This project uses [Terraform](https://developer.hashicorp.com/terraform/downloads?ajs_aid=406e18d1-b747-4153-bf58-60f840b3f37e&product_intent=terraform) and [Ansible](https://docs.ansible.com/ansible/latest/installation_guide/intro_installation.html). This means you need to have both tools installed and added to PATH.
+
+The tool [JQ](https://jqlang.github.io/jq/) is also used in the *mongodb_init.sh* script to extract IPs from terraform output. To install it:
+```
+$ sudo apt install jq
+```
+If you don't want to use it, run the steps in the script on your own and manually create the *inventory.ini* file in the **Ansible** directory in the following format:
+```
+[mongodb]
+<Public IP of first mongodb machine> ansible_ssh_user=ec2-user
+<Public IP of second mongodb machine> ansible_ssh_user=ec2-user
+<Public IP of third mongodb machine> ansible_ssh_user=ec2-user
+[goweb]
+<Public IP of the go app machine> ansible_ssh_user=ec2-user
+```
 
 Also an AWS account is requied and preferably an IAM user in a User group with the permissions:
 
@@ -48,7 +62,7 @@ with
 access_key = <Your Access Key here>
 secret_key = <Your Secret Key here>
 ```
-in the *proviver.tf* file. Make sure to keep these keys safe as they can be used to access your account. Do not push them in any public repo.
+in the *proviver.tf* file. Make sure to keep these keys safe as they can be used to access your account. Do not push them in any public repo. Also, delete the *variables.tf* file.
 
 ### Installation
 
