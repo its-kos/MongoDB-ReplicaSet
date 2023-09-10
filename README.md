@@ -4,34 +4,79 @@
 
 ## Table of Contents
 
-- [Project Title](#project-title)
+- [Movierama Assignment](#movierama-assignment)
   - [Table of Contents](#table-of-contents)
   - [Overview](#overview)
-  - [Getting Started](#getting-started)
     - [Prerequisites](#prerequisites)
     - [Installation](#installation)
+      - [For Linux:](#for-linux)
+      - [For Windows:](#for-windows)
+  - [Getting Started](#getting-started)
   - [Usage](#usage)
   - [Configuration](#configuration)
   - [Deployment](#deployment)
   - [Monitoring](#monitoring)
-  - [Contributing](#contributing)
-  - [License](#license)
 
 ## Overview
 
-Provide an introduction to your project. Explain what it does, why it exists, and any problems it aims to solve. You can also include a high-level architecture diagram here if applicable.
+This project aims to create infrastructure for a microservice. Specifically a replicated mongoDB cluster, and an accompanying sample web app to act as a blueprint upon which a normal app can be built. It uses Terraform and Ansible to automatically provision and configure the required infrastructure pieces on AWS, and a Go backend sample app that pings the mongoDB cluster for health and relevant metrics.
 
-## Getting Started
+The entire deployment is done on EC2 machines of AWS, inside a custom VPC. The architecture is shown below.
 
-Explain how to get your project up and running. Include step-by-step instructions to help users and contributors set up a development environment.
+
+A more secure architecture like the one shown below was not chosen due to it being more complex than needed however it is certainly a more robust one.
+
 
 ### Prerequisites
 
-List any software, tools, or dependencies that users need to have installed before they can use your project. Include version numbers when necessary.
+For now, this project works best in a Linux/macOS environment as it requires bash to run the startup script and Ansible is not officially supporte on Windows. If you are on Windows, [install WSL](https://learn.microsoft.com/en-us/windows/wsl/install) and follow the same steps. 
+
+This project uses [Terraform](https://developer.hashicorp.com/terraform/downloads?ajs_aid=406e18d1-b747-4153-bf58-60f840b3f37e&product_intent=terraform) and [Ansible](https://docs.ansible.com/ansible/latest/installation_guide/intro_installation.html). This means you need to have both tools installed and added to PATH.
+
+Also an AWS account is requied and preferably an IAM user in a User group with the permissions:
+
+* AdministratorAccess
+* AmazonEC2FullAccess
+
+Then, keep note of the User's **AWS Access Key** and **AWS Secret Key** and replace the following lines
+```
+access_key = var.aws_access_key
+secret_key = var.aws_secret_key
+```
+with 
+```
+access_key = <Your Access Key here>
+secret_key = <Your Secret Key here>
+```
+in the *proviver.tf* file. Make sure to keep these keys safe as they can be used to access your account. Do not push them in any public repo.
 
 ### Installation
 
-Detail the installation process. Include any necessary commands, configuration files, or environment variables that need to be set. If possible, provide both manual and automated installation methods.
+#### For Linux:
+
+```
+$ git clone https://github.com/its-kos/sre-movierama.git
+$ cd sre-movierama
+$ sudo chmod +x mongodb_init.sh
+$ sudo chmod +x mongodb_dest.sh
+```
+then run either
+```
+$ ./mongodb_init.sh
+```
+to run the script that sets up the infrastructure and deploys the app.
+Or
+```
+$ ./mongodb_dest.sh
+```
+to tear everything down and remove all instances from AWS. (Keep in mind that since this is hosted on AWS, if you leave the deployment up and runnig it could cause unwanted costs)
+
+#### For Windows:
+Do note that Ansible does not support a Windows control node. WSL is needed so set WSL up and follow the above steps.
+
+## Getting Started
+
+To set up the 
 
 ## Usage
 
@@ -48,11 +93,3 @@ Describe the deployment process. Include deployment scripts, tools, or platforms
 ## Monitoring
 
 Explain how to monitor the health and performance of your DevOps setup. Mention any monitoring tools, metrics, or dashboards that users can use to keep an eye on their deployments.
-
-## Contributing
-
-Encourage others to contribute to your project. Include guidelines for contributing, information on how to report issues, and any coding standards or conventions to follow.
-
-## License
-
-Specify the project's license to clarify how others can use and distribute your code. You can use the [MIT License](https://opensource.org/licenses/MIT) as an example.

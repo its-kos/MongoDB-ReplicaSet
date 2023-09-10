@@ -24,7 +24,7 @@ resource "aws_subnet" "public_subnet" {
 }
 
 resource "aws_route_table" "public_route_table" {
-    subnet_id = aws_subnet.public_subnet.id
+    vpc_id = aws_vpc.main_vpc.id
 }
 
 resource "aws_route" "public_route" {

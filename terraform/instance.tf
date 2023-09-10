@@ -31,21 +31,21 @@ resource "aws_security_group" "mongo_sg" {
         from_port   = 22
         to_port     = 22
         protocol    = "tcp"
-        cidr_blocks = [aws_vpc.main_vpc.cidr_blocks]
+        cidr_blocks = ["0.0.0.0/0"]
     }
 
     ingress {
         from_port   = 27017
         to_port     = 27017
         protocol    = "tcp"
-        cidr_blocks = [aws_vpc.main_vpc.cidr_blocks]
+        cidr_blocks = ["0.0.0.0/0"]
     }
 
     ingress {
         from_port   = -1
         to_port     = -1
         protocol    = "icmp"
-        cidr_blocks = [aws_vpc.main_vpc.cidr_blocks]
+        cidr_blocks = ["0.0.0.0/0"]
     }
 
     egress {
