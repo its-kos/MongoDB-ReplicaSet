@@ -23,10 +23,10 @@
 This project aims to create infrastructure for a microservice. Specifically a replicated mongoDB cluster, and an accompanying sample web app to act as a blueprint upon which a normal app can be built. It uses Terraform and Ansible to automatically provision and configure the required infrastructure pieces on AWS, and a Go backend sample app that pings the mongoDB cluster for health and relevant metrics.
 
 The entire deployment is done on EC2 machines of AWS, inside a custom VPC. The architecture is shown below.
-
+![Current arch](current.jpg)
 
 A more secure architecture like the one shown below was not chosen due to it being more complex than needed however it is certainly a more robust one.
-
+![Otherarch](other.jpg)
 
 ### Prerequisites
 
