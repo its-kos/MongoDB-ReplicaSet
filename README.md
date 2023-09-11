@@ -11,11 +11,12 @@
     - [Installation](#installation)
       - [For Linux:](#for-linux)
       - [For Windows:](#for-windows)
-  - [Getting Started](#getting-started)
   - [Usage](#usage)
   - [Configuration](#configuration)
-  - [Deployment](#deployment)
-  - [Monitoring](#monitoring)
+  - [Assignment Section](#assignment-section)
+  - [Issues](#issues)
+  - [Compromises](#compromises)
+  - [Things not completed](#things-not-completed)
 
 ## Overview
 
@@ -88,22 +89,41 @@ to tear everything down and remove all instances from AWS. (Keep in mind that si
 #### For Windows:
 Do note that Ansible does not support a Windows control node. WSL is needed so set WSL up and follow the above steps.
 
-## Getting Started
-
-To set up the 
-
 ## Usage
 
-Explain how to use your project. Provide examples and usage scenarios. Include any important commands, API endpoints, or interfaces that users should be aware of.
+After the infrastructure has been provisioned and deployed, you can use and develop the web app to your liking. The app has 2 endpoints 
+
+1) /health - This endpoint checks if the cluster is up and running and replies accordingly
+2) /metrics - This endpoint replies with metrcis in the Prometheus format.
+
+By developing this app you can interact with the mongoDB cluster.
 
 ## Configuration
 
-Explain the configuration options available for your project. Provide guidance on how to customize and configure your DevOps setup for different use cases.
+There are a few options of configuring this project. Most of the configuration happens in the **Terraform** directory. There you can change the region of deployment in the *provider.tf* script. Then in the *instance.tf* script you can change the inbound and outbound rules for your security groups as well as information about the instances.
 
-## Deployment
+In the **Ansible** directory and in the *go-app.yml* and *mongodb.yml* files you can modify the configuration of the machines for example to add more users to the mongoDB cluster.
 
-Describe the deployment process. Include deployment scripts, tools, or platforms that can be used. If applicable, provide guidance on scaling and managing deployments.
+## Assignment Section
 
-## Monitoring
+## Issues
+Right now, I can't get Ansible to connect via SSH to the hosts and configure them. Scripts seem ok, I unfortunately don't know enough about Ansible to properly debug this. I assume the AWS instnaces would require SSH setup. Everything else runs ok.
 
-Explain how to monitor the health and performance of your DevOps setup. Mention any monitoring tools, metrics, or dashboards that users can use to keep an eye on their deployments.
+Also, I can't figure out how to make JQ parse a single IP string. It works fine for the array of IPs that come from the mongoDB machines however I keep getting an error when trying to parse the single IP coming from the go web instance. I assume it's overkill or it can be done without JQ however from my understanding JQ is a normal practise for extracting IPs form JSON and I found it in most docs so I went with it.
+
+## Compromises
+
+As mentioned in the overview a few compromises had to be made. 
+
+1) I opted to go with the free tier of AWS and not something like Vagrant and Kubernetes so an AWS account is required.
+2) I opted for a less secure architecture due to complexity. Everything is in a public subnet without a Bastion host separating them.
+3) The deployment works only on either Linux or WSL since Ansible cannot work on a Windows host. It could be changed to accomodate for manual instance configuration without Ansible.
+
+**Do note that I have kept all comments to showcase my thought process during development and the different ways I tried going about it. I would not normally leave all these comments**
+
+## Things not completed
+Due to knowledge and time contraints all the optional tasks are not completed and as mentioned the assignment is not 100% complete as I cannot get Ansible to connect via SSH and configure the machines. 
+
+Regarding the optional tasks, for the external postgres db, I would probably set up another instance and configure postgres on it like the rest of the machines, then I assume a postgres driver like [this one](https://github.com/lib/pq) could be used to talk to the database (similarly to the mongoDB cluster driver). Then, similarly create an additional **/ready** endpoint to ping the database. Pretty similar to the mongoDB cluster's **/health** endpoint.
+
+Regarding the prometheus / grafana stack, I didn't have enought time to research the stack so I am not sure / confident enought to say what I could have done.

@@ -14,18 +14,18 @@
         state: started
 
     - name: Configure MongoDB replica set
-      command: |
+      command: | # There is probably an error in this script "hostvars[host].ansible_ssh_host" is not the correct form to query the hosts. 
         mongo --eval "rs.initiate({
           _id: 'aws_replicaset',
           members: [
             {% for host in groups['mongodb'] %}
-            { _id: {{ loop.index0 }}, host: '{{ hostvars[host].ansible_ssh_host }}:27017' }{% if not loop.last %},{% endif %}
+            { _id: {{ loop.index0 }}, host: '{{ hostvars[host].ansible_ssh_host }}:27017' }{% if not loop.last %},{% endif %} 
             {% endfor %}
           ]
         })"
       ignore_errors: yes
 
-    - name: Create admin user (customize this for your security needs)
+    - name: Create admin user
       command: |
         mongo admin --eval "db.createUser({user: 'admin', pwd: 'admin', roles: ['root']})"
       ignore_errors: yes

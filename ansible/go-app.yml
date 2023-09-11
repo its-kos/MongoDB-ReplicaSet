@@ -5,7 +5,7 @@
 
   tasks:
     - name: Install Go
-      shell: curl -O https://dl.google.com/go/go1.21.1.linux-amd64.tar.gz && tar -C /usr/local -xzf go1.21.1.linux-amd64.tar.gz
+      shell: curl -O https://dl.google.com/go/go1.21.1.linux-amd64.tar.gz && tar -C /usr/local -xzf go1.21.1.linux-amd64.tar.gz # Latest at time of writing
       args:
         executable: /bin/bash
 
