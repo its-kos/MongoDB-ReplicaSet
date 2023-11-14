@@ -104,9 +104,7 @@ There are a few options of configuring this project. Most of the configuration h
 
 In the **Ansible** directory and in the *go-app.yml* and *mongodb.yml* files you can modify the configuration of the machines for example to add more users to the mongoDB cluster.
 
-## Assignment Section
-
-## Issues
+# Issues
 Right now, I can't get Ansible to connect via SSH to the hosts and configure them. Scripts seem ok, I unfortunately don't know enough about Ansible to properly debug this. I assume the AWS instnaces would require SSH setup. Everything else runs ok.
 
 Also, I can't figure out how to make JQ parse a single IP string. It works fine for the array of IPs that come from the mongoDB machines however I keep getting an error when trying to parse the single IP coming from the go web instance. I assume it's overkill or it can be done without JQ however from my understanding JQ is a normal practise for extracting IPs form JSON and I found it in most docs so I went with it.
@@ -118,12 +116,3 @@ As mentioned in the overview a few compromises had to be made.
 1) I opted to go with the free tier of AWS and not something like Vagrant and Kubernetes so an AWS account is required.
 2) I opted for a less secure architecture due to complexity. Everything is in a public subnet without a Bastion host separating them.
 3) The deployment works only on either Linux or WSL since Ansible cannot work on a Windows host. It could be changed to accomodate for manual instance configuration without Ansible.
-
-**Do note that I have kept all comments to showcase my thought process during development and the different ways I tried going about it. I would not normally leave all these comments**
-
-## Things not completed
-Due to knowledge and time contraints all the optional tasks are not completed and as mentioned the assignment is not 100% complete as I cannot get Ansible to connect via SSH and configure the machines. 
-
-Regarding the optional tasks, for the external postgres db, I would probably set up another instance and configure postgres on it like the rest of the machines, then I assume a postgres driver like [this one](https://github.com/lib/pq) could be used to talk to the database (similarly to the mongoDB cluster driver). Then, similarly create an additional **/ready** endpoint to ping the database. Pretty similar to the mongoDB cluster's **/health** endpoint.
-
-Regarding the prometheus / grafana stack, I didn't have enought time to research the stack so I am not sure / confident enought to say what I could have done.
